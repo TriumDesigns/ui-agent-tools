@@ -1,6 +1,6 @@
 {
   "name": "com.triumdesigns.ui-agent-tools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "displayName": "UI Agent Tools",
   "description": "Lets an AI coding agent understand and safely change Unity UI in prefabs AND scenes: a structure map with data-flow wiring, validation with baseline, transactional edits through Unity's own serialization (auto-rollback), multi-resolution screenshots, and a CLI that works with the Editor open or closed. No dependency on uGUI, TextMeshPro, UI Toolkit or any XR package.",
   "unity": "2021.3",

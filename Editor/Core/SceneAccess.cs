@@ -69,7 +69,12 @@ namespace UIAgentTools
             var existing = SceneManager.GetSceneByPath(scenePath);
             if (existing.IsValid() && existing.isLoaded)
             {
-                if (forEdit && existing.isDirty)
+                // In batch mode there is no interactive user who could have "unsaved changes" -
+                // a dirty flag here only ever means an earlier step of this same batch run (e.g.
+                // editing a prefab that this scene holds an instance of) touched it. Refusing would
+                // block legitimate multi-step edit scripts; EditScene saves whatever is currently
+                // in memory, so nothing is lost.
+                if (forEdit && existing.isDirty && !Application.isBatchMode)
                     throw new InvalidOperationException("Scene '" + scenePath + "' is open in the Editor with unsaved changes. " +
                                                         "Save or discard those changes in Unity first, then run again.");
                 return new SceneHandle(existing, scenePath, true, existing.isDirty, false, false);

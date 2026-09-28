@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.2
+- Fix: `UIAgentEdit.EditScene` could wrongly refuse to edit a scene in batch mode ("is open in
+  the Editor with unsaved changes") when an earlier step of the same run - e.g. editing a prefab
+  that the scene holds an instance of - had merely caused Unity to re-sync that instance,
+  marking the scene dirty as a harmless side effect rather than a real unsaved edit. In batch
+  mode there is no interactive user whose work could be lost, so `SceneAccess.Open` no longer
+  applies that guard there; found by running `ui-agent selftest` end-to-end in real Unity
+  2022.1 for the first time.
+- Fix: `SETUP.md` at the package root had no `.meta` file, so Unity would silently generate one
+  with a fresh random GUID on each consumer's first import (the same class of bug 0.2.0 already
+  fixed for other files). Added a committed `SETUP.md.meta` so the GUID is stable across installs.
+- Known issue (not fixed, low impact): `ui-agent selftest`'s own screenshot check can report its
+  scene screenshot as blank in pure batch mode after exercising its full map/edit/validate/reject
+  sequence in one continuous Unity process, even though `map`/`validate`/`screenshots`/`run` used
+  the normal documented way (one command per Unity invocation) render scene screenshots correctly
+  - verified directly against real fixtures. Several attempts to reproduce the blank result outside
+  `SelfTest.cs`'s own exact sequence did not reproduce it, so the root cause is still unknown.
+  Flagged for follow-up; see SETUP.md's existing note about blank screenshots.
+
 ## 0.2.1
 - Renamed package to UI Agent Tools (`com.triumdesigns.ui-agent-tools`) to reflect that nothing here
   is Claude-specific: the CLI (`ui-agent.sh/.ps1/.cmd`), the map/validation/screenshot output, and the

@@ -27,7 +27,8 @@ or any XR package (they are detected at runtime).
 ## Install
 See `SETUP.md` in the delivery zip, or in short:
 1. Add the package: Package Manager > **+** > *Add package from disk…* > `package.json`,
-   or add a git URL / `file:` path in `Packages/manifest.json`.
+   or in `Packages/manifest.json`: `"com.triumdesigns.ui-agent-tools": "https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.2"`
+   (or a `file:` path — see `SETUP.md`).
 2. Menu **UI Agent Tools > Install or Update Project Files**.
 3. Run `./ui-agent.sh selftest`, then `./ui-agent.sh baseline` (optional), then `./ui-agent.sh map`.
 

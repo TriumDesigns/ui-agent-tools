@@ -1,0 +1,40 @@
+// Example edit script. Your AI coding agent writes one of these per change into
+// Assets/Editor/AgentEdits/ and runs it with:  ./ui-agent.sh run AgentEdits.Edit_20260928_LoginCopy.Run
+// Addresses come straight from the UIAgentMap/*.md files.
+
+using UnityEngine;
+using UIAgentTools;
+
+namespace AgentEdits
+{
+    public static class Edit_20260928_LoginCopy
+    {
+        public static void Run()
+        {
+            // 1) Change the prefab asset -> affects every scene/prefab that uses it (check prefab-usage.md first).
+            UIAgentEdit.EditPrefab("Assets/UI/LoginPanel.prefab", root =>
+            {
+                var title = UIAgentEdit.Find(root, "LoginPanel/Header/Title");
+                UIAgentEdit.SetText(title, "Welcome back");
+                UIAgentEdit.Set(UIAgentEdit.Get(title, "TextMeshProUGUI"), "m_fontSize", 42f);
+
+                var submit = UIAgentEdit.Find(root, "LoginPanel/Footer/Submit");
+                UIAgentEdit.SetRect(submit.GetComponent<RectTransform>(), sizeDelta: new Vector2(360, 96));
+                UIAgentEdit.Set(UIAgentEdit.Get(submit, "Image"), "m_Sprite", "Assets/Art/UI/buttons.png::btn_primary");
+            });
+
+            // 2) Change one scene only -> for prefab instances this creates a scene-only override.
+            UIAgentEdit.EditScene("Assets/Scenes/Main.unity", scene =>
+            {
+                var help = UIAgentEdit.Find(scene, "UI/MainCanvas/Footer/HelpButton");
+                UIAgentEdit.SetActive(help, false);
+
+                var controller = UIAgentEdit.Get(UIAgentEdit.Find(scene, "Managers/UIManager"), "UIManager");
+                var newButton = UIAgentEdit.InstantiatePrefab("Assets/UI/Widgets/PrimaryButton.prefab",
+                                                               UIAgentEdit.Find(scene, "UI/MainCanvas/Footer"));
+                UIAgentEdit.SetName(newButton, "SettingsButton");
+                UIAgentEdit.AddListener(UIAgentEdit.Get(newButton, "Button"), "onClick", controller, "OpenSettings");
+            });
+        }
+    }
+}

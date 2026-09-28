@@ -1,0 +1,64 @@
+## Unity UI workflow (UI Agent Tools) - mandatory for any prefab/scene change
+
+All commands go through the wrapper in the project root. It works whether Unity is open
+(it talks to the running Editor) or closed (it starts Unity in batch mode):
+`./ui-agent.sh <command>` (macOS/Linux/Git Bash) or `.\ui-agent.cmd <command>` (Windows).
+Every command prints a RESULT line and exits non-zero on failure. Treat failure as "not done".
+
+| Command | Use |
+|---|---|
+| `map [asset]` | Regenerate UIAgentMap (all, or one `.prefab`/`.unity`) |
+| `validate [asset]` | Check for broken UI; fails on NEW errors only |
+| `screenshots [asset]` | Render UI at every configured resolution |
+| `run AgentEdits.<Class>.Run` | Execute an edit script, then auto re-map + validate what it saved |
+| `compile` | Check scripts compile (after C# changes) |
+
+### 1. Understand before editing
+- Start at `UIAgentMap/INDEX.md`. Read the map of every scene/prefab you will touch
+  (`UIAgentMap/scenes/*.md`, `UIAgentMap/prefabs/*.md`). They show the hierarchy with an
+  exact address per object, RectTransform layout, every serialized field by property path,
+  Button/Toggle/UnityEvent listeners, prefab-instance overrides, and scene scripts wired to UI.
+- `UIAgentMap/prefab-usage.md` shows every scene/prefab that instantiates or references a prefab.
+- If INDEX.md says a map is stale or was made with unsaved Editor changes, run `map <asset>` first.
+- Code that drives the UI: follow the `script:` paths printed next to each component.
+
+### 2. Decide WHERE the change belongs
+- Should apply everywhere the prefab is used -> edit the prefab asset (`EditPrefab`).
+- Should apply to one scene only -> edit the scene (`EditScene`); on a prefab instance this
+  creates a scene override. Deleting/re-parenting objects inside a prefab instance is not
+  allowed in a scene - do it in the prefab asset.
+- Nested prefab / prefab variant: edit the most specific asset that should own the change.
+
+### 3. Make the change - ONLY through an edit script
+- NEVER hand-edit `.unity`, `.prefab`, `.asset` or `.meta` files as text. NEVER use
+  `Object.Instantiate` for prefabs in edit scripts (breaks the prefab link).
+- Write `Assets/Editor/AgentEdits/Edit_<yyyyMMdd>_<Topic>.cs` in `namespace AgentEdits`,
+  a `public static class` with `public static void Run()`, using only the `UIAgentEdit` API:
+  `EditPrefab(path, root => ...)`, `EditScene(path, scene => ...)`, `Find(root|scene, "address")`,
+  `Get(go, "ComponentType")`, `Set(component, "m_PropertyPath", value)`, `SetText`, `SetActive`,
+  `SetName`, `SetRect`, `SetSiblingIndex`, `SetParent`, `CreateChild`, `AddComponent`,
+  `RemoveComponent`, `InstantiatePrefab`, `Delete`, `AddListener`, `RemoveListener`, `MarkChanged`.
+- Edit scripts compile in their own assembly (`AgentEdits.asmdef`) that sees only Unity and
+  UIAgentTools - so refer to project components by name (`Get(go, "LoginController")`), never by
+  type. A compile error there can't break the rest of the project.
+- Property paths and addresses must be copied from the map files, not guessed.
+  Object fields accept an asset path, e.g. `"Assets/Art/ui.png::btn_primary"` for a sprite.
+- Run it: `./ui-agent.sh run AgentEdits.Edit_<yyyyMMdd>_<Topic>.Run`. Each EditPrefab/EditScene
+  is transactional: it is rejected (nothing saved) if it throws or adds validation errors, and
+  the file is restored from backup if post-save verification fails.
+- Several related changes -> one script. After it succeeds, move the script out of Assets to
+  `UIAgentMap/edit-history/` so it doesn't stay in the project.
+
+### 4. Verify before reporting done
+1. The `run` result must be OK with 0 new validation errors.
+2. `./ui-agent.sh screenshots <asset>` for each changed asset, then open the PNGs listed in
+   `UIAgentMap/screenshots/manifest.md` and check them at every resolution: overflow, clipped
+   text, overlaps, safe area, foldable aspect ratios. BLANK images mean the capture failed - say so.
+3. Tell the user what changed, which assets were saved, and anything you could not verify
+   (runtime-populated content, on-device XR interaction).
+
+### Hard rules
+- Unity open with unsaved changes in a scene/prefab you need -> stop and ask the user to save.
+- Never run `baseline`, never edit `UIAgentMap/validation-baseline.json` or `config.json`,
+  and never delete `UIAgentMap/backups/` without the user's explicit OK.
+- Screenshots are a layout check, not proof that XR interaction works on a device.

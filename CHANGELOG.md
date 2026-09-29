@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3
+- Docs: `SETUP.md` and `README.md` now show the git install line using HTTPS instead of SSH
+  (`https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.3`) - no per-developer SSH key needed,
+  just read access to the repo and git authenticated to GitHub over HTTPS (e.g. via `gh auth login`
+  or Git Credential Manager). Verified end-to-end in real Unity 2022.1: resolves over HTTPS to the
+  tagged commit and compiles with zero errors.
+- `package.json`: corrected author name to "Trium Designs".
+
 ## 0.2.2
 - Fix: `UIAgentEdit.EditScene` could wrongly refuse to edit a scene in batch mode ("is open in
   the Editor with unsaved changes") when an earlier step of the same run - e.g. editing a prefab

@@ -1,4 +1,4 @@
-# UI Agent Tools v0.2.2 – setup and usage
+# UI Agent Tools v0.2.3 – setup and usage
 
 ## A. One-time: host the package (5 min)
 1. Unzip and put the `com.triumdesigns.ui-agent-tools/` folder in its own git repo (e.g. `triumdesigns/ui-agent-tools`).
@@ -9,7 +9,7 @@
 
 ## B. Per project (10 min)
 1. **Add the package.** In `Packages/manifest.json` under `"dependencies"`, use one of:
-   - a) git (recommended): `"com.triumdesigns.ui-agent-tools": "https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.2"`
+   - a) git (recommended): `"com.triumdesigns.ui-agent-tools": "https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.3"`
    - b) local folder: `"com.triumdesigns.ui-agent-tools": "file:../../path/to/com.triumdesigns.ui-agent-tools"`
 2. **Commit your project first** (git is your ultimate safety net).
 3. In Unity, open Project Settings > Editor and set **Asset Serialization Mode = Force Text**, if it

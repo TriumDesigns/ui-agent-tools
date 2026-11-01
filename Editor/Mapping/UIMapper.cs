@@ -208,6 +208,9 @@ namespace UIAgentTools
             string root = UIAgentPaths.ProjectRoot + "/";
             if (p.StartsWith(root, StringComparison.OrdinalIgnoreCase)) p = p.Substring(root.Length);
             if (p.StartsWith("./")) p = p.Substring(2);
+            // Only project assets (never paths that escape the project, e.g. via ..) are ever read or written.
+            if (p.Split('/').Contains("..") || !(p.StartsWith("Assets/", StringComparison.Ordinal) || p.StartsWith("Packages/", StringComparison.Ordinal)))
+                throw new ArgumentException("Asset path must be inside Assets/ or Packages/: " + assetPath);
             return p;
         }
 

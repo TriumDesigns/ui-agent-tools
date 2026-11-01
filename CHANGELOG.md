@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0
+- License: now released under the Apache License 2.0 (`LICENSE.md`), with `license`, `repository`,
+  `documentationUrl`, `changelogUrl` and `licensesUrl` in `package.json`.
+- Security: `run` (and the Editor request bridge) now only executes public static methods of the
+  `AgentEdits` assembly instead of any static method in any loaded assembly. Asset paths given to
+  `map`/`validate`/`screenshots` and `UIAgentEdit` must be inside `Assets/` or `Packages/`.
+  Breaking: edit scripts outside `Assets/Editor/AgentEdits/` (the `AgentEdits` assembly) can no longer be run.
+- `Install or Update Project Files` also adds a marked `@AGENTS.md` import to `CLAUDE.md` and `GEMINI.md`
+  so Claude Code and Gemini-based agents pick up the workflow rules (Codex reads `AGENTS.md` directly).
+- `selftest`: blank screenshots are a warning (not a failure) in batch mode. This is the known issue from 0.2.2
+  and it affects more than the scene capture: on Unity 2022.1 and 6000.5 the selftest's own batch sequence reports
+  10 blank images, while a normal `ui-agent screenshots` run renders correctly on both (checked by viewing the PNG).
+  Root cause still unknown.
+- `selftest` looks up the built-in UI font per Unity version, which removes `LegacyRuntime.ttf` errors on 2022.1.
+- Docs rewritten for public use (per-agent setup, security model, tested-with notes); removed the
+  internal "host the package" step. Added `.gitattributes`, issue/PR templates, SECURITY/CONTRIBUTING and a
+  lint workflow.
+
 ## 0.2.3
 - Docs: `SETUP.md` and `README.md` now show the git install line using HTTPS instead of SSH
   (`https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.3`) - no per-developer SSH key needed,

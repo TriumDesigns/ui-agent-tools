@@ -2,10 +2,15 @@
 
 Lets an AI coding agent understand and safely change Unity UI in **prefabs and scenes**, in any Unity project:
 mobile XR, WebXR, HMD/OpenXR, or non-XR games. Everything here is a plain Unity Editor package, shell/
-PowerShell scripts, and Markdown/JSON output — there is nothing Claude-specific about it. Claude, ChatGPT/
-Codex, Gemini, Cursor, Aider, or a human developer can all drive the same `map → read → write edit script →
-run → validate → screenshot` workflow. It has no dependency on uGUI, TextMeshPro, UI Toolkit
-or any XR package (they are detected at runtime).
+PowerShell scripts, and Markdown/JSON output, so nothing is tied to one vendor. Claude Code, OpenAI Codex,
+Google Antigravity, Gemini CLI, Cursor, Aider, or a human developer can all drive the same
+`map → read → write edit script → run → validate → screenshot` workflow. The package has no compile-time
+dependency on uGUI, TextMeshPro, UI Toolkit or any XR package (they are detected at runtime). Editing and the
+self test target uGUI (`com.unity.ugui`).
+
+Licensed under the [Apache License 2.0](LICENSE.md): free for personal and commercial projects.
+Status: **0.x** - used in real projects, but expect rough edges; please
+[open an issue](https://github.com/TriumDesigns/ui-agent-tools/issues).
 
 ## What it does
 
@@ -25,16 +30,32 @@ or any XR package (they are detected at runtime).
   On a headless Linux CI machine, install `xvfb`.
 
 ## Install
-See `SETUP.md` in the delivery zip, or in short:
-1. Add the package: Package Manager > **+** > *Add package from disk…* > `package.json`,
-   or in `Packages/manifest.json`: `"com.triumdesigns.ui-agent-tools": "https://github.com/TriumDesigns/ui-agent-tools.git#v0.2.3"`
-   (or a `file:` path — see `SETUP.md`).
+Full guide: [SETUP.md](SETUP.md). In short:
+1. Package Manager > **+** > *Add package from git URL…* >
+   `https://github.com/TriumDesigns/ui-agent-tools.git#v0.3.0`
+   (or add `"com.triumdesigns.ui-agent-tools": "https://github.com/TriumDesigns/ui-agent-tools.git#v0.3.0"` to
+   `Packages/manifest.json`, or use a `file:` path).
 2. Menu **UI Agent Tools > Install or Update Project Files**.
 3. Run `./ui-agent.sh selftest`, then `./ui-agent.sh baseline` (optional), then `./ui-agent.sh map`.
+4. Ask your agent for a UI change in plain language. It reads `AGENTS.md` and follows the workflow.
+
+## Using it with your agent
+The installer writes the workflow rules to `AGENTS.md` and adds a one-line `@AGENTS.md` import to `CLAUDE.md`
+and `GEMINI.md`, so each tool finds the same instructions:
+
+| Agent | How it picks up the rules | What to allow |
+|---|---|---|
+| **Claude Code** | `CLAUDE.md` imports `AGENTS.md` | Allow the wrapper in your permissions, e.g. `Bash(./ui-agent.sh:*)` (Windows: `.\ui-agent.cmd`) |
+| **OpenAI Codex** | reads `AGENTS.md` directly | The wrapper starts Unity, which writes outside the workspace (Unity logs, Hub install path): use a sandbox/approval mode that allows it |
+| **Google Antigravity / Gemini CLI** | reads `AGENTS.md`; `GEMINI.md` imports it | Allow the terminal commands for `ui-agent` |
+| **Others** (Cursor, Aider, ...) | point them at `AGENTS.md` | - |
+
+Tools change quickly; if your agent ignores the rules, tell it to read `AGENTS.md` first.
 
 ## Files it creates in your project
 - `ui-agent.sh`, `ui-agent.ps1`, `ui-agent.cmd`: the wrapper scripts.
 - `AGENTS.md`: gets a marked block with the workflow rules. Your own text is kept.
+- `CLAUDE.md`, `GEMINI.md`: a marked one-line `@AGENTS.md` import (skipped if the file already imports it).
 - `.gitignore`: gets a marked block.
 - `Assets/Editor/AgentEdits/AgentEdits.asmdef`: an isolated assembly for your agent's edit scripts.
 - `UIAgentMap/`: maps, config, report and baseline (commit these), plus backups, screenshots and logs (git-ignored).
@@ -46,3 +67,17 @@ See `SETUP.md` in the delivery zip, or in short:
   each `UIDocument` is hosted.
 - Only prefabs and scenes are edited transactionally. ScriptableObject/other assets are out of scope.
 - The scene outline truncates after `maxOutlineObjects` (4000 by default). UI roots are never truncated.
+
+## Security model
+Edit scripts are ordinary C# that runs inside your Editor, and the request bridge runs whatever the
+wrapper sends it, so only use this on projects and with agents you trust. `run` only executes public static
+methods in the `AgentEdits` assembly, and asset paths must be inside `Assets/` or `Packages/`.
+See [SECURITY.md](.github/SECURITY.md) for reporting vulnerabilities.
+
+## Contributing
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+## License
+Copyright 2026 Trium Designs. Licensed under the [Apache License, Version 2.0](LICENSE.md).
+Unity is a trademark of Unity Technologies; Claude, Codex, Antigravity and Gemini are trademarks of their
+respective owners. This project is not affiliated with or endorsed by any of them.

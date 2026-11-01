@@ -159,7 +159,7 @@ namespace UIAgentTools
             var method = ResolveMethod(methodPath);
             if (method == null)
             {
-                summary = "Could not find public static void " + methodPath + "(). Check the namespace/class/method names, and that the script is inside Assets/Editor/AgentEdits/ and compiled.";
+                summary = "Could not find public static void " + methodPath + "(). Check the namespace/class/method names, and that the script is a public static method of a class inside Assets/Editor/AgentEdits/ (the AgentEdits assembly - `run` refuses anything else) and compiled.";
                 return false;
             }
 
@@ -211,18 +211,19 @@ namespace UIAgentTools
             string methodName = methodPath.Substring(dot + 1);
             var type = TypeLookupFresh(typeName);
             if (type == null) return null;
-            var mi = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, Type.EmptyTypes, null);
+            var mi = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null);
             return mi;
         }
 
+        // Only the AgentEdits assembly (Assets/Editor/AgentEdits/AgentEdits.asmdef) may be run, so `run` (and the request bridge)
+        // can never invoke arbitrary static methods from Unity, the project or its packages.
         // Edit scripts are new types; don't use TypeLookup's cache (it may have cached a miss before compilation).
         private static Type TypeLookupFresh(string fullName)
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                Type t = null;
-                try { t = asm.GetType(fullName, false); } catch { }
-                if (t != null) return t;
+                if (asm.GetName().Name != "AgentEdits") continue;
+                try { return asm.GetType(fullName, false); } catch { }
             }
             return null;
         }

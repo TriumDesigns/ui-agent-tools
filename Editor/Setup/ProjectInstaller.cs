@@ -4,6 +4,7 @@
 //   ui-agent.sh / ui-agent.ps1 / ui-agent.cmd   wrapper your coding agent runs for every command
 //   UIAgentMap/config.json                        (only if missing)
 //   AGENTS.md                                      adds/updates a marked block (your own text is kept)
+//   CLAUDE.md / GEMINI.md                          one-line `@AGENTS.md` import so Claude Code and Gemini-based agents read it too
 //   .gitignore                                     adds/updates a marked block
 //   Assets/Editor/AgentEdits/                     folder for your agent's edit scripts
 // Safe to run again after updating the package: it only refreshes its own files/blocks.
@@ -67,6 +68,17 @@ namespace UIAgentTools
                 "# " + Application.productName + "\n\n<!-- Project-specific notes for your AI coding agent go here (platforms, XR rig, conventions, off-limits folders). -->\n\n");
             File.WriteAllText(agentsMd, updated, new UTF8Encoding(false));
             log.AppendLine(existing.Length == 0 ? "Created AGENTS.md" : "Updated the UI Agent Tools block in AGENTS.md (your own text was kept)");
+
+            // 3b. Claude Code reads CLAUDE.md and Gemini CLI/Antigravity read GEMINI.md; both can import AGENTS.md. Codex reads AGENTS.md directly.
+            foreach (var name in new[] { "CLAUDE.md", "GEMINI.md" })
+            {
+                string path = root + "/" + name;
+                string text = File.Exists(path) ? File.ReadAllText(path).Replace("\r\n", "\n") : "";
+                bool ours = text.Contains(BlockStart);
+                if (!ours && text.Contains("@AGENTS.md")) { log.AppendLine(name + " already imports AGENTS.md"); continue; }
+                File.WriteAllText(path, ReplaceBlock(text, BlockStart, BlockEnd, BlockStart + "\n@AGENTS.md\n" + BlockEnd, ""), new UTF8Encoding(false));
+                log.AppendLine((text.Length == 0 ? "Created " : "Updated the UI Agent Tools block in ") + name + " (imports AGENTS.md)");
+            }
 
             // 4. .gitignore block
             string gitBlock = GitStart + "\nUIAgentMap/backups/\nUIAgentMap/requests/\nUIAgentMap/logs/\nUIAgentMap/screenshots/\nUIAgentMap/last-result.json\nUIAgentMap/*.tmp\n" + GitEnd;

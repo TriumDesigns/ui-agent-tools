@@ -1,0 +1,31 @@
+name: Bug report
+description: Something doesn't work
+labels: [bug]
+body:
+  - type: input
+    id: unity
+    attributes: {label: Unity version, placeholder: "2022.3.20f1"}
+    validations: {required: true}
+  - type: input
+    id: pipeline
+    attributes: {label: Render pipeline and graphics API, placeholder: "URP, D3D11"}
+  - type: input
+    id: os
+    attributes: {label: OS, placeholder: "Windows 11 / macOS 14 / Ubuntu 22.04"}
+    validations: {required: true}
+  - type: input
+    id: agent
+    attributes: {label: AI agent (and version), placeholder: "Claude Code, Codex, Antigravity, ..."}
+  - type: input
+    id: version
+    attributes: {label: UI Agent Tools version, placeholder: "0.3.0"}
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes: {label: What happened and what did you expect?}
+    validations: {required: true}
+  - type: textarea
+    id: selftest
+    attributes:
+      label: Output of `./ui-agent.sh selftest` (and the failing command)
+      render: text

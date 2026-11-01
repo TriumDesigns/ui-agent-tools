@@ -1,0 +1,25 @@
+name: lint
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package checks (.meta files, JSON, version, license)
+        run: bash .github/scripts/check-package.sh
+      - name: shellcheck (wrapper script)
+        run: shellcheck -S warning Tools~/ui-agent.sh
+      - name: PowerShell syntax (wrapper script)
+        shell: pwsh
+        run: |
+          $errs = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/Tools~/ui-agent.ps1", [ref]$null, [ref]$errs) | Out-Null
+          if ($errs) { $errs | ForEach-Object { Write-Error $_.Message }; exit 1 }

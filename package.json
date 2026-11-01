@@ -1,10 +1,21 @@
 {
   "name": "com.triumdesigns.ui-agent-tools",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "displayName": "UI Agent Tools",
   "description": "Lets an AI coding agent understand and safely change Unity UI in prefabs AND scenes: a structure map with data-flow wiring, validation with baseline, transactional edits through Unity's own serialization (auto-rollback), multi-resolution screenshots, and a CLI that works with the Editor open or closed. No dependency on uGUI, TextMeshPro, UI Toolkit or any XR package.",
   "unity": "2021.3",
-  "keywords": ["ai", "agent", "ui", "ugui", "prefab", "scene", "tooling", "xr"],
-  "author": { "name": "Trium Designs" },
+  "license": "Apache-2.0",
+  "keywords": ["ai", "agent", "claude-code", "codex", "antigravity", "ui", "ugui", "prefab", "scene", "tooling", "xr"],
+  "author": {
+    "name": "Trium Designs",
+    "url": "https://github.com/TriumDesigns"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TriumDesigns/ui-agent-tools.git"
+  },
+  "documentationUrl": "https://github.com/TriumDesigns/ui-agent-tools#readme",
+  "changelogUrl": "https://github.com/TriumDesigns/ui-agent-tools/blob/master/CHANGELOG.md",
+  "licensesUrl": "https://github.com/TriumDesigns/ui-agent-tools/blob/master/LICENSE.md",
   "dependencies": {}
 }
